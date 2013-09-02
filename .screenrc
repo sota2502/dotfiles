@@ -1,0 +1,15 @@
+defencoding utf8
+encoding utf8 utf8
+#escape ^z^z
+
+startup_message off
+termcapinfo xterm* 'is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l'
+autodetach on
+defscrollback 10000
+hardstatus alwayslastline "%`%-w%{=b dr}%n %t%{-}%+w     %= %Y/%m/%d %c:%s [%H]"
+bind ^L windowlist -b
+vbell off
+
+bind ^U encoding utf8 utf8
+bind ^E encoding eucjp utf8
+bind ^W encoding sjis utf8
