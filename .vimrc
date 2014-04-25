@@ -1,33 +1,68 @@
+" -------------------
+" 色の設定
+" -------------------
 syntax on
 
-highlight LineNr ctermfg=darkyellow
-set listchars=tab:>-,trail:-,nbsp:-,extends:>,precedes:<, 
+highlight LineNr ctermfg=darkyellow    " 行番号
+highlight NonText ctermfg=darkgrey
+highlight Folded ctermfg=blue
+highlight SpecialKey cterm=underline ctermfg=darkgrey
+highlight SpecialKey ctermfg=grey " 特殊記号
 
-"set tab
-set expandtab
-set ts=4
+" 全角スペースを視覚化
+highlight ZenkakuSpace cterm=underline ctermfg=lightblue guibg=white
+match ZenkakuSpace /　/
+
+" タブ幅
+set ts=4 sw=4
 set softtabstop=4
-set sw=4
-
-"set list
+set expandtab
 set number
-set laststatus=2
-"set backspace=indent,eol,start
-"set formatoptions+=m
-set statusline=%<%F\ %r%h%w%y%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%4v(ASCII=%03.3b,HEX=%02.2B)\ %l/%L(%P)%m
+" set list
+
+setlocal omnifunc=syntaxcomplete#Complete
 
 set mouse=a
-set ttymouse=xterm2
+set ttymouse=xterm2 
 
-hi StatusLine term=NONE cterm=NONE ctermfg=white ctermbg=blue
+" -------------------
+" 日本語の設定
+" -------------------
+set termencoding=utf-8
+set encoding=japan
+" set fileencodings=utf-8,iso-2022-jp,cp932,euc-jp,sjis
+set fileencodings=utf-8,iso-2022-jp,euc-jp,sjis
+set fenc=utf-8
+set enc=utf-8
 
-map ,pt <Esc>:'<,'>!perltidy
+" -------------------
+" 検索
+" -------------------
+" 検索文字列が小文字の場合は大文字小文字を区別なく検索する(noignorecase)
+set ignorecase
+" 検索文字列に大文字が含まれている場合は区別して検索する(nosmartcase)
+set smartcase
+" 検索文字のハイライトをしない
+"set nohlsearch
+" インクリメンタルサーチ
+set incsearch
 
-"set encoding=euc-jp
-"set fileencoding=euc-jp
-"set fileencodings=iso-2022-jp,utf-8,sjis
+if v:version < 700
+   set migemo
+endif
 
-" ʸ�������ɤμ�ưǧ��
+" ------------------
+" ステータスライン
+"  -----------------
+set laststatus=2
+" set statusline=%<%f\ %m%r%h%w%y%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%4v\ %l/%L
+set statusline=%n:\ %<%f\ %m%r%h%w[%{&fileformat}][%{has('multi_byte')&&\ &fileencoding!=''?&fileencoding:&encoding}]\ 0x%B=%b%=%l,%c\ %P
+highlight StatusLine term=NONE cterm=NONE ctermfg=black ctermbg=white
+
+" perltidy
+map ,pt <Esc>:'<,'>! perltidy<CR>
+
+" 文字コードの自動認識
 if &encoding !=# 'utf-8'
   set encoding=japan
   set fileencoding=japan
@@ -35,41 +70,40 @@ endif
 if has('iconv')
   let s:enc_euc = 'euc-jp'
   let s:enc_jis = 'iso-2022-jp'
-  " iconv��eucJP-ms���б����Ƥ��뤫������å�
+  " iconvがeucJP-msに対応しているかをチェック
   if iconv("\x87\x64\x87\x6a", 'cp932', 'eucjp-ms') ==# "\xad\xc5\xad\xcb"
-    "let s:enc_euc = 'eucjp-ms'
+    let s:enc_euc = 'eucjp-ms'
     let s:enc_jis = 'iso-2022-jp-3'
-  " iconv��JISX0213���б����Ƥ��뤫������å�
+  " iconvがJISX0213に対応しているかをチェック
   elseif iconv("\x87\x64\x87\x6a", 'cp932', 'euc-jisx0213') ==# "\xad\xc5\xad\xcb"
     let s:enc_euc = 'euc-jisx0213'
     let s:enc_jis = 'iso-2022-jp-3'
   endif
-  " fileencodings����
+  " fileencodingsを構築
   if &encoding ==# 'utf-8'
     let s:fileencodings_default = &fileencodings
-    let &fileencodings = s:enc_euc . "," . s:enc_jis .',cp932'
+    let &fileencodings = s:enc_jis .','. s:enc_euc .',cp932'
     let &fileencodings = &fileencodings .','. s:fileencodings_default
     unlet s:fileencodings_default
   else
     let &fileencodings = &fileencodings .','. s:enc_jis
     set fileencodings+=utf-8,ucs-2le,ucs-2
-    "if &encoding =~# '^\(euc-jp\|euc-jisx0213\|eucjp-ms\)$'
-    if &encoding =~# '^\(euc-jp\|euc-jisx0213\)$'
+    if &encoding =~# '^\(euc-jp\|euc-jisx0213\|eucjp-ms\)$'
       set fileencodings+=cp932
       set fileencodings-=euc-jp
       set fileencodings-=euc-jisx0213
-      "set fileencodings-=eucjp-ms
+      set fileencodings-=eucjp-ms
       let &encoding = s:enc_euc
       let &fileencoding = s:enc_euc
     else
       let &fileencodings = &fileencodings .','. s:enc_euc
     endif
   endif
-  " ������ʬ
+  " 定数を処分
   unlet s:enc_euc
   unlet s:enc_jis
 endif
-" ���ܸ��ޤޤʤ����� fileencoding �� encoding ��Ȥ��褦�ˤ���
+" 日本語を含まない場合は fileencoding に encoding を使うようにする
 if has('autocmd')
   function! AU_ReCheck_FENC()
     if &fileencoding =~# 'iso-2022-jp' && search("[^\x01-\x7e]", 'n') == 0
@@ -78,28 +112,9 @@ if has('autocmd')
   endfunction
   autocmd BufReadPost * call AU_ReCheck_FENC()
 endif
-
-" ���ԥ����ɤμ�ưǧ��
+" 改行コードの自動認識
 set fileformats=unix,dos,mac
-" ���Ȥ�����ʸ�������äƤ⥫��������֤�����ʤ��褦�ˤ���
+" □とか○の文字があってもカーソル位置がずれないようにする
 if exists('&ambiwidth')
   set ambiwidth=double
 endif
-
-"JsLint 20090604
-fun! JsLint()
-    w%
-    let file = getcwd()."/".expand("%")
-    execute ":Scratch"
-    execute ":0,%delete"
-    if has('mac')
-        execute "r !/opt/local/bin/js ~/bin/jslint.js ".file." \"`cat ".file."`\""
-    elseif has('unix')
-        execute "r !/usr/bin/js ~/bin/js/jslint.js ".file." \"`cat ".file."`\""
-    endif
-endfun
-
-noremap fg :call Search_pm('vne')<ENTER>
-noremap ff :call Search_pm('e')<ENTER>
-noremap fd :call Search_pm('sp')<ENTER>
-noremap ft :call Search_pm('tabe')<ENTER>
