@@ -16,3 +16,4 @@ git clone https://github.com/sota2502/dotfiles.git $WORK_PATH
 
 cp $WORK_PATH/.screenrc $INSTALL_PATH
 cp $WORK_PATH/.vimrc $INSTALL_PATH
+cp $WORK_PATH/.zshrc $INSTALL_PATH
