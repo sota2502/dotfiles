@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -eu
 
 if [ ! $INSTALL_PATH ] ; then
     INSTALL_PATH=$HOME
