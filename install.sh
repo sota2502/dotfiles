@@ -1,10 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
-set -eu
+set -e
 
 if [ ! $INSTALL_PATH ] ; then
     INSTALL_PATH=$HOME
 fi
+
+set -u
 
 WORK_PATH=$INSTALL_PATH/dotfiles_work
 
