@@ -2,8 +2,7 @@
 export LANG=ja_JP.UTF-8
 
 # パスの設定
-# export PATH=/usr/sbin:/usr/local/bin:$PATH
-PATH=/sbin:$HOME/bin:$HOME/mysql/bin:$PATH
+export PATH=$HOME/bin:$PATH
 export MANPATH=/usr/local/man:/usr/share/man
 export DYLD_LIBRARY_PATH=$HOME/mysql/lib
 
